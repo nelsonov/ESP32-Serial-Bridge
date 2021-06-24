@@ -6,6 +6,7 @@
 // or any other situations where system failure may affect
 // user or environmental safety.
 
+#include "secrets.h"
 #include "config.h"
 #include <esp_wifi.h>
 #include <WiFi.h>
@@ -225,4 +226,3 @@ void loop()
     }    
   }
 }
-
