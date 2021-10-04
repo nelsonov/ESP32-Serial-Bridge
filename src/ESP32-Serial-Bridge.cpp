@@ -8,9 +8,8 @@
 
 #include <esp_wifi.h>
 #include <WiFi.h>
-#include "secrets.h"
 #include "config.h"
-
+#include "secrets.h"
 
 
 
@@ -60,6 +59,8 @@ void setup() {
   if(debug) COM[DEBUG_COM]->println("\n\nLK8000 WiFi serial bridge V1.00");
   #ifdef MODE_AP 
    if(debug) COM[DEBUG_COM]->println("Open ESP Access Point mode");
+
+
   //AP mode (phone connects directly to ESP) (no router)
   WiFi.mode(WIFI_AP);
    
@@ -76,6 +77,9 @@ void setup() {
   // Assuming phone is also connected to that router
   // from RoboRemo you must connect to the IP of the ESP
   WiFi.mode(WIFI_STA);
+  #ifdef STA_HOSTNAME
+  WiFi.setHostname(STA_HOSTNAME); 
+  #endif
   WiFi.begin(ssid, pw);
   if(debug) COM[DEBUG_COM]->print("try to Connect to Wireless network: ");
   if(debug) COM[DEBUG_COM]->println(ssid);

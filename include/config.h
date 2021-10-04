@@ -2,7 +2,7 @@
 // 
 //#define BLUETOOTH
 #define OTA_HANDLER 
-#define MODE_AP // phone connects directly to ESP
+#define MODE_STA // phone connects directly to ESP
 
 
 #define PROTOCOL_TCP
@@ -39,7 +39,8 @@ IPAddress netmask(255, 255, 255, 0);
 #define SERIAL1_TXPIN 17            // transmit Pin UART1
 #define SERIAL1_TCP_PORT 8881       // Wifi Port UART1
 /*************************  COM Port 2 *******************************/
-#define UART_BAUD2 115200            // Baudrate UART2
+#define UART_BAUD2 9600
+            // Baudrate UART2
 #define SERIAL_PARAM2 SERIAL_8N1    // Data/Parity/Stop UART2
 #define SERIAL2_RXPIN 15            // receive Pin UART2
 #define SERIAL2_TXPIN 4             // transmit Pin UART2
