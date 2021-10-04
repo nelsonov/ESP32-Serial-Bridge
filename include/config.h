@@ -3,7 +3,6 @@
 //#define BLUETOOTH
 #define OTA_HANDLER 
 #define MODE_STA // phone connects directly to ESP
-// testing git
 
 #define PROTOCOL_TCP
 
