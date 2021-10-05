@@ -4,7 +4,6 @@
 #define OTA_HANDLER 
 #define MODE_STA // phone connects directly to ESP
 
-
 #define PROTOCOL_TCP
 
 bool debug = true;
