@@ -3,7 +3,7 @@
 //#define BLUETOOTH
 #define OTA_HANDLER 
 #define MODE_STA // phone connects directly to ESP
-
+#define STA_HOSTNAME "ser01"
 #define PROTOCOL_TCP
 
 bool debug = true;

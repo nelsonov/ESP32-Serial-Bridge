@@ -47,6 +47,8 @@ uint16_t i2[NUM_COM]={0,0,0};
 uint8_t BTbuf[bufferSize];
 uint16_t iBT =0;
 
+byte mac[6];
+
 
 void setup() {
 
@@ -64,7 +66,7 @@ void setup() {
   //AP mode (phone connects directly to ESP) (no router)
   WiFi.mode(WIFI_AP);
   #ifdef AP_HOSTNAME
-  String hosname = AP_HOSTNAME;
+  String hostname = AP_HOSTNAME;
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
   WiFi.setHostname(hostname.c_str()); 
   #endif
@@ -72,6 +74,18 @@ void setup() {
   WiFi.softAP(ssid, pw); // configure ssid and password for softAP
   delay(2000); // VERY IMPORTANT
   WiFi.softAPConfig(ip, ip, netmask); // configure ip address for softAP
+  if(debug) {
+    COM[DEBUG_COM]->println("\nWiFi connected\n");
+    COM[DEBUG_COM]->print("IP: ");
+    COM[DEBUG_COM]->print(WiFi.localIP());
+    COM[DEBUG_COM]->print("/");
+    COM[DEBUG_COM]->print(WiFi.subnetMask());
+#ifdef AP_HOSTNAME    
+    COM[DEBUG_COM]->print(" Hostname: ");
+    COM[DEBUG_COM]->print(hostname.c_str());
+#endif
+    COM[DEBUG_COM]->println("\n");
+  }
 
   #endif
 
@@ -83,19 +97,34 @@ void setup() {
   // from RoboRemo you must connect to the IP of the ESP
   WiFi.mode(WIFI_STA);
   #ifdef STA_HOSTNAME
-  String hosname = STA_HOSTNAME;
+  String hostname = STA_HOSTNAME;
   WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
   WiFi.setHostname(hostname.c_str()); 
   #endif
   WiFi.begin(ssid, pw);
-  if(debug) COM[DEBUG_COM]->print("try to Connect to Wireless network: ");
-  if(debug) COM[DEBUG_COM]->println(ssid);
+    if(debug) {
+      COM[DEBUG_COM]->print("My MAC: ");
+      COM[DEBUG_COM]->print(WiFi.macAddress());
+      COM[DEBUG_COM]->println("\n");
+      COM[DEBUG_COM]->print("try to Connect to Wireless network: ");
+      COM[DEBUG_COM]->println(ssid);
+    }
   while (WiFi.status() != WL_CONNECTED) {   
     delay(500);
     if(debug) COM[DEBUG_COM]->print(".");
   }
-  if(debug) COM[DEBUG_COM]->println("\nWiFi connected");
-  
+  if(debug) {
+    COM[DEBUG_COM]->println("\nWiFi connected\n");
+    COM[DEBUG_COM]->print("IP: ");
+    COM[DEBUG_COM]->print(WiFi.localIP());
+    COM[DEBUG_COM]->print("/");
+    COM[DEBUG_COM]->print(WiFi.subnetMask());
+#ifdef STA_HOSTNAME    
+    COM[DEBUG_COM]->print(" Hostname: ");
+    COM[DEBUG_COM]->print(hostname.c_str());
+#endif
+    COM[DEBUG_COM]->println("\n");
+  }
   #endif
 #ifdef BLUETOOTH
   if(debug) COM[DEBUG_COM]->println("Open Bluetooth Server");  
