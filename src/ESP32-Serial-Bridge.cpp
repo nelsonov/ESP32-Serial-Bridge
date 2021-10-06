@@ -63,6 +63,11 @@ void setup() {
 
   //AP mode (phone connects directly to ESP) (no router)
   WiFi.mode(WIFI_AP);
+  #ifdef AP_HOSTNAME
+  String hosname = AP_HOSTNAME;
+  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+  WiFi.setHostname(hostname.c_str()); 
+  #endif
    
   WiFi.softAP(ssid, pw); // configure ssid and password for softAP
   delay(2000); // VERY IMPORTANT
@@ -78,7 +83,9 @@ void setup() {
   // from RoboRemo you must connect to the IP of the ESP
   WiFi.mode(WIFI_STA);
   #ifdef STA_HOSTNAME
-  WiFi.setHostname(STA_HOSTNAME); 
+  String hosname = STA_HOSTNAME;
+  WiFi.config(INADDR_NONE, INADDR_NONE, INADDR_NONE, INADDR_NONE);
+  WiFi.setHostname(hostname.c_str()); 
   #endif
   WiFi.begin(ssid, pw);
   if(debug) COM[DEBUG_COM]->print("try to Connect to Wireless network: ");
