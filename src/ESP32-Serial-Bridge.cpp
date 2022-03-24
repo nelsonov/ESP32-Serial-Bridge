@@ -12,6 +12,8 @@
 #include "secrets.h"
 
 
+const int numCom=NUM_COM - 1;
+#define MAX_COM 3
 
 #ifdef BLUETOOTH
 #include <BluetoothSerial.h>
@@ -25,7 +27,8 @@ BluetoothSerial SerialBT;
 
 HardwareSerial Serial_one(1);
 HardwareSerial Serial_two(2);
-HardwareSerial* COM[NUM_COM] = {&Serial, &Serial_one , &Serial_two};
+HardwareSerial* COM[MAX_COM] = {&Serial, &Serial_one, &Serial_two};
+
 
 #define MAX_NMEA_CLIENTS 4
 #ifdef PROTOCOL_TCP
@@ -33,16 +36,16 @@ HardwareSerial* COM[NUM_COM] = {&Serial, &Serial_one , &Serial_two};
 WiFiServer server_0(SERIAL0_TCP_PORT);
 WiFiServer server_1(SERIAL1_TCP_PORT);
 WiFiServer server_2(SERIAL2_TCP_PORT);
-WiFiServer *server[NUM_COM]={&server_0,&server_1,&server_2};
-WiFiClient TCPClient[NUM_COM][MAX_NMEA_CLIENTS];
+WiFiServer *server[numCom]={&server_0,&server_1,&server_2};
+WiFiClient TCPClient[numCom][MAX_NMEA_CLIENTS];
 #endif
 
 
-uint8_t buf1[NUM_COM][bufferSize];
-uint16_t i1[NUM_COM]={0,0,0};
+uint8_t buf1[MAX_COM][bufferSize];
+uint16_t i1[MAX_COM]={0,0,0};
 
-uint8_t buf2[NUM_COM][bufferSize];
-uint16_t i2[NUM_COM]={0,0,0};
+uint8_t buf2[MAX_COM][bufferSize];
+uint16_t i2[MAX_COM]={0,0,0};
 
 uint8_t BTbuf[bufferSize];
 uint16_t iBT =0;
@@ -53,9 +56,13 @@ void setup() {
   delay(500);
   
   COM[0]->begin(UART_BAUD0, SERIAL_PARAM0, SERIAL0_RXPIN, SERIAL0_TXPIN);
-  COM[1]->begin(UART_BAUD1, SERIAL_PARAM1, SERIAL1_RXPIN, SERIAL1_TXPIN);
+  #if NUM_COM >= 2
+    COM[1]->begin(UART_BAUD1, SERIAL_PARAM1, SERIAL1_RXPIN, SERIAL1_TXPIN);
+  #endif
+  #if NUM_COM >= 3
   COM[2]->begin(UART_BAUD2, SERIAL_PARAM2, SERIAL2_RXPIN, SERIAL2_TXPIN);
-  
+  #endif
+
   if(debug) COM[DEBUG_COM]->println("\n\nLK8000 WiFi serial bridge V1.00");
   #ifdef MODE_AP 
    if(debug) COM[DEBUG_COM]->println("Open ESP Access Point mode");
@@ -89,7 +96,7 @@ void setup() {
   }
   if(debug) COM[DEBUG_COM]->println("\nWiFi connected");
   
-  #endif
+#endif
 #ifdef BLUETOOTH
   if(debug) COM[DEBUG_COM]->println("Open Bluetooth Server");  
   SerialBT.begin(ssid); //Bluetooth device name
@@ -141,7 +148,7 @@ void setup() {
   server[2]->setNoDelay(true);
   #endif
 
-  esp_err_t esp_wifi_set_max_tx_power(50);  //lower WiFi Power
+//  esp_err_t esp_wifi_set_max_tx_power(50);  //lower WiFi Power
 }
 
 
@@ -160,13 +167,13 @@ void loop()
       BTbuf[iBT] = SerialBT.read(); // read char from client (LK8000 app)
       if(iBT <bufferSize-1) iBT++;
     }          
-    for(int num= 0; num < NUM_COM ; num++)
+    for(int num= 0; num < numCom ; num++)
       COM[num]->write(BTbuf,iBT); // now send to UART(num):          
     iBT = 0;
   }  
 #endif  
 #ifdef PROTOCOL_TCP
-  for(int num= 0; num < NUM_COM ; num++)
+  for(int num= 0; num < numCom ; num++)
   {
     if (server[num]->hasClient())
     {
@@ -185,11 +192,12 @@ void loop()
       WiFiClient TmpserverClient = server[num]->available();
       TmpserverClient.stop();
     }
-  }
-#endif
- 
-  for(int num= 0; num < NUM_COM ; num++)
+  } 
+  #endif
+  
+  for(int num= 0; num < numCom ; num++)
   {
+#ifdef PROTOCOL_TCP
     if(COM[num] != NULL)          
     {
       for(byte cln = 0; cln < MAX_NMEA_CLIENTS; cln++)
@@ -220,13 +228,14 @@ void loop()
           if(TCPClient[num][cln])                     
             TCPClient[num][cln].write(buf2[num], i2[num]);
         }
-#ifdef BLUETOOTH        
-        // now send to Bluetooth:
-        if(SerialBT.hasClient())      
-          SerialBT.write(buf2[num], i2[num]);               
-#endif  
-        i2[num] = 0;
       }
     }    
+#endif
+#ifdef BLUETOOTH        
+    // now send to Bluetooth:
+    if(SerialBT.hasClient())      
+    SerialBT.write(buf2[num], i2[num]);               
+#endif  
+    i2[num] = 0;
   }
 }
